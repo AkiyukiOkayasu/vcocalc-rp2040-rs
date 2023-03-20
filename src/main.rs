@@ -27,6 +27,15 @@ struct Args {
     low_vco: bool,
 }
 
+#[derive(Default)]
+struct Best {
+    out: f32,
+    fbdiv: i32,
+    pd1: i32,
+    pd2: i32,
+    refdiv: i32,
+}
+
 fn main() {
     let opts = Args::parse();
 
@@ -38,8 +47,8 @@ fn main() {
     let refdiv_range =
         refdiv_min..=std::cmp::min(refdiv_max, (opts.input / opts.ref_min).floor() as i32);
 
-    let mut best = (0_f32, 0_i32, 0_i32, 0_i32, 0_i32);
-    let mut best_margin = (opts.output - best.0).abs();
+    let mut best = Best::default();
+    let mut best_margin = (opts.output - best.out).abs();
 
     for refdiv in refdiv_range {
         for fbdiv in (16..=320).rev() {
@@ -53,7 +62,13 @@ fn main() {
                     let out = vco / (pd1 as f32) / (pd2 as f32);
                     let margin = (opts.output - out).abs();
                     if margin < best_margin {
-                        best = (out, fbdiv, pd1, pd2, refdiv);
+                        best = Best {
+                            out,
+                            fbdiv,
+                            pd1,
+                            pd2,
+                            refdiv,
+                        };
                         best_margin = margin;
                     }
                 }
@@ -62,13 +77,13 @@ fn main() {
     }
 
     println!("Requested: {} MHz", opts.output);
-    println!("Achieved: {} MHz", best.0);
-    println!("REFDIV: {}", best.4);
+    println!("Achieved: {} MHz", best.out);
+    println!("REFDIV: {}", best.refdiv);
     println!(
         "FBDIV: {} (VCO = {} MHz)",
-        best.1,
-        opts.input / (best.4 as f32) * (best.1 as f32)
+        best.fbdiv,
+        opts.input / (best.refdiv as f32) * (best.fbdiv as f32)
     );
-    println!("PD1: {}", best.2);
-    println!("PD2: {}", best.3);
+    println!("PD1: {}", best.pd1);
+    println!("PD2: {}", best.pd2);
 }
