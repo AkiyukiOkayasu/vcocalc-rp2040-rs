@@ -8,19 +8,19 @@ struct Args {
     /// Output frequency in MHz
     output: f32,
 
-    /// Input (reference) frequency
+    /// Input (reference) frequency in MHz
     #[arg(short, long, default_value = "12")]
     input: f32,
 
-    /// Override minimum reference frequency
+    /// Override minimum reference frequency in MHz
     #[arg(long, default_value = "5")]
     ref_min: f32,
 
-    /// Override maximum VCO frequency
+    /// Override maximum VCO frequency in MHz
     #[arg(long, default_value = "1600")]
     vco_max: f32,
 
-    /// Override minimum VCO frequency
+    /// Override minimum VCO frequency in MHz
     #[arg(long, default_value = "750")]
     vco_min: f32,
 
