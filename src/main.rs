@@ -5,20 +5,26 @@ use clap::Parser;
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Args {
+    /// Output frequency in MHz
     output: f32,
 
+    /// Input (reference) frequency
     #[arg(short, long, default_value = "12")]
     input: f32,
 
+    /// Override minimum reference frequency
     #[arg(long, default_value = "5")]
     ref_min: f32,
 
+    /// Override maximum VCO frequency
     #[arg(long, default_value = "1600")]
     vco_max: f32,
 
+    /// Override minimum VCO frequency
     #[arg(long, default_value = "750")]
     vco_min: f32,
 
+    /// Use a lower VCO frequency when possible. This reduces power consumption, at the cost of increased jitter
     #[clap(short, long)]
     low_vco: bool,
 }
