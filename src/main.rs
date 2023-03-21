@@ -41,11 +41,11 @@ fn main() {
 
     // let fbdiv_range = 16..=320;
     // let postdiv_range = 1..=7;
-    let refdiv_min = 1;
-    let refdiv_max = 63;
+    const REFDIV_MIN: i32 = 1i32;
+    const REFDIV_MAX: i32 = 63i32;
 
     let refdiv_range =
-        refdiv_min..=std::cmp::min(refdiv_max, (opts.input / opts.ref_min).floor() as i32);
+        REFDIV_MIN..=std::cmp::min(REFDIV_MAX, (opts.input / opts.ref_min).floor() as i32);
 
     let mut best = Best::default();
     let mut best_margin = (opts.output - best.out).abs();
