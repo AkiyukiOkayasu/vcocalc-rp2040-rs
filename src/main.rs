@@ -1,3 +1,5 @@
+use std::ops::RangeInclusive;
+
 use clap::Parser;
 
 #[derive(Parser)]
@@ -39,8 +41,7 @@ struct Best {
 fn main() {
     let opts = Args::parse();
 
-    // let fbdiv_range = 16..=320;
-    // let postdiv_range = 1..=7;
+    const POSTDIV_RANGE: RangeInclusive<i32> = 1..=7;
     const REFDIV_MIN: i32 = 1i32;
     const REFDIV_MAX: i32 = 63i32;
 
@@ -51,25 +52,53 @@ fn main() {
     let mut best_margin = (opts.output - best.out).abs();
 
     for refdiv in refdiv_range {
-        for fbdiv in (16..=320).rev() {
-            let vco = opts.input / (refdiv as f32) * (fbdiv as f32);
-            if vco < opts.vco_min || vco > opts.vco_max {
-                continue;
+        if opts.low_vco {
+            //TODO Refactor FBDIV_RANGE reverse
+            for fbdiv in 16..=320 {
+                let vco = opts.input / (refdiv as f32) * (fbdiv as f32);
+                if vco < opts.vco_min || vco > opts.vco_max {
+                    continue;
+                }
+                // pd1 is inner loop so that we prefer higher ratios of pd1:pd2
+                for pd2 in POSTDIV_RANGE {
+                    for pd1 in POSTDIV_RANGE {
+                        let out = vco / (pd1 as f32) / (pd2 as f32);
+                        let margin = (opts.output - out).abs();
+                        if margin < best_margin {
+                            best = Best {
+                                out,
+                                fbdiv,
+                                pd1,
+                                pd2,
+                                refdiv,
+                            };
+                            best_margin = margin;
+                        }
+                    }
+                }
             }
-            // pd1 is inner loop so that we prefer higher ratios of pd1:pd2
-            for pd2 in 1..=7 {
-                for pd1 in 1..=7 {
-                    let out = vco / (pd1 as f32) / (pd2 as f32);
-                    let margin = (opts.output - out).abs();
-                    if margin < best_margin {
-                        best = Best {
-                            out,
-                            fbdiv,
-                            pd1,
-                            pd2,
-                            refdiv,
-                        };
-                        best_margin = margin;
+        } else {
+            //TODO Refactor FBDIV_RANGE reverse
+            for fbdiv in (16..=320).rev() {
+                let vco = opts.input / (refdiv as f32) * (fbdiv as f32);
+                if vco < opts.vco_min || vco > opts.vco_max {
+                    continue;
+                }
+                // pd1 is inner loop so that we prefer higher ratios of pd1:pd2
+                for pd2 in 1..=7 {
+                    for pd1 in 1..=7 {
+                        let out = vco / (pd1 as f32) / (pd2 as f32);
+                        let margin = (opts.output - out).abs();
+                        if margin < best_margin {
+                            best = Best {
+                                out,
+                                fbdiv,
+                                pd1,
+                                pd2,
+                                refdiv,
+                            };
+                            best_margin = margin;
+                        }
                     }
                 }
             }
