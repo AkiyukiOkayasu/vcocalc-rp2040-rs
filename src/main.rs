@@ -42,6 +42,7 @@ fn main() {
     let opts = Args::parse();
 
     const POSTDIV_RANGE: RangeInclusive<i32> = 1..=7;
+    const FBDIV_RANGE: RangeInclusive<i32> = 16..=320;
     const REFDIV_MIN: i32 = 1i32;
     const REFDIV_MAX: i32 = 63i32;
 
@@ -52,9 +53,9 @@ fn main() {
     let mut best_margin = (opts.output - best.out).abs();
 
     for refdiv in refdiv_range {
+        //TODO Refactor FBDIV_RANGE reverse
         if opts.low_vco {
-            //TODO Refactor FBDIV_RANGE reverse
-            for fbdiv in 16..=320 {
+            for fbdiv in FBDIV_RANGE {
                 let vco = opts.input / (refdiv as f32) * (fbdiv as f32);
                 if vco < opts.vco_min || vco > opts.vco_max {
                     continue;
@@ -78,8 +79,7 @@ fn main() {
                 }
             }
         } else {
-            //TODO Refactor FBDIV_RANGE reverse
-            for fbdiv in (16..=320).rev() {
+            for fbdiv in FBDIV_RANGE.rev() {
                 let vco = opts.input / (refdiv as f32) * (fbdiv as f32);
                 if vco < opts.vco_min || vco > opts.vco_max {
                     continue;
